@@ -1,0 +1,174 @@
+<h2>Design: Admin Panel UI Mockups</h2>
+<p class="subtitle">Section 3 of 3 — Admin views (Tailwind CSS, standalone)</p>
+
+<div class="section">
+  <h3>Admin: Shop List Dashboard (/admin)</h3>
+  <div class="mockup">
+    <div class="mockup-header">theme-operator.vercel.app/admin?key=SECRET</div>
+    <div class="mockup-body" style="padding: 0; background: #0f172a; color: #e2e8f0;">
+      <!-- Nav -->
+      <div style="padding: 16px 24px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 18px; font-weight: 700; color: #f8fafc;">🛠 Theme Operator <span style="font-size: 12px; color: #64748b; font-weight: 400;">Admin</span></div>
+        <div style="font-size: 12px; color: #64748b;">Logged in as Admin</div>
+      </div>
+
+      <div style="padding: 24px;">
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Installed Shops</div>
+        <div style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">All merchants who installed Theme Operator</div>
+
+        <!-- Shop table -->
+        <div style="background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155;">
+          <!-- Header -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 10px 16px; background: #334155; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.05em;">
+            <div>Shop</div>
+            <div>Themes</div>
+            <div style="text-align: right;">Actions</div>
+          </div>
+          <!-- Row 1 -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 14px 16px; border-bottom: 1px solid #334155; align-items: center;">
+            <div>
+              <div style="font-weight: 500; color: #f1f5f9;">my-cool-store.myshopify.com</div>
+            </div>
+            <div style="color: #94a3b8;">3 themes</div>
+            <div style="text-align: right;">
+              <span style="padding: 5px 14px; background: #3b82f6; color: #fff; border-radius: 6px; font-size: 12px; cursor: pointer;">Manage →</span>
+            </div>
+          </div>
+          <!-- Row 2 -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 14px 16px; border-bottom: 1px solid #334155; align-items: center;">
+            <div>
+              <div style="font-weight: 500; color: #f1f5f9;">fashion-hub.myshopify.com</div>
+            </div>
+            <div style="color: #94a3b8;">5 themes</div>
+            <div style="text-align: right;">
+              <span style="padding: 5px 14px; background: #3b82f6; color: #fff; border-radius: 6px; font-size: 12px; cursor: pointer;">Manage →</span>
+            </div>
+          </div>
+          <!-- Row 3 -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 14px 16px; align-items: center;">
+            <div>
+              <div style="font-weight: 500; color: #f1f5f9;">tech-gadgets-store.myshopify.com</div>
+            </div>
+            <div style="color: #94a3b8;">2 themes</div>
+            <div style="text-align: right;">
+              <span style="padding: 5px 14px; background: #3b82f6; color: #fff; border-radius: 6px; font-size: 12px; cursor: pointer;">Manage →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 32px;">
+  <h3>Admin: Theme Management for a Shop (/admin/shop/:id)</h3>
+  <div class="mockup">
+    <div class="mockup-header">theme-operator.vercel.app/admin/shop/my-cool-store?key=SECRET</div>
+    <div class="mockup-body" style="padding: 0; background: #0f172a; color: #e2e8f0;">
+      <!-- Nav -->
+      <div style="padding: 16px 24px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="color: #3b82f6; cursor: pointer; font-size: 14px;">← Back to shops</span>
+          <span style="color: #475569;">|</span>
+          <span style="font-size: 18px; font-weight: 700; color: #f8fafc;">my-cool-store.myshopify.com</span>
+        </div>
+      </div>
+
+      <div style="padding: 24px;">
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Themes</div>
+
+        <!-- Theme cards -->
+        <!-- Theme 1: Main -->
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; background: #334155; border-radius: 6px; display: flex; align-items: center; justify-content: center;">🎨</div>
+              <div>
+                <div style="font-weight: 600;">Dawn</div>
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                  <span style="background: #166534; color: #bbf7d0; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600;">MAIN</span>
+                  <span style="font-size: 12px; color: #64748b;">ID: 12345</span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button style="padding: 6px 14px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; font-size: 13px; cursor: pointer; color: #e2e8f0;">⬇ Download</button>
+              <button style="padding: 6px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; font-size: 13px; color: #475569; cursor: not-allowed;" disabled>🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theme 2 -->
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; background: #334155; border-radius: 6px; display: flex; align-items: center; justify-content: center;">🎨</div>
+              <div>
+                <div style="font-weight: 600;">Dawn (Copy)</div>
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                  <span style="background: #854d0e; color: #fef08a; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600;">UNPUBLISHED</span>
+                  <span style="font-size: 12px; color: #64748b;">ID: 12346</span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button style="padding: 6px 14px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; font-size: 13px; cursor: pointer; color: #e2e8f0;">⬇ Download</button>
+              <button style="padding: 6px 14px; background: #1e293b; border: 1px solid #7f1d1d; border-radius: 6px; font-size: 13px; color: #fca5a5; cursor: pointer;">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theme 3 -->
+        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; background: #334155; border-radius: 6px; display: flex; align-items: center; justify-content: center;">🎨</div>
+              <div>
+                <div style="font-weight: 600;">Minimal Theme</div>
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                  <span style="background: #581c87; color: #e9d5ff; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600;">DEMO</span>
+                  <span style="font-size: 12px; color: #64748b;">ID: 12347</span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button style="padding: 6px 14px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; font-size: 13px; cursor: pointer; color: #e2e8f0;">⬇ Download</button>
+              <button style="padding: 6px 14px; background: #1e293b; border: 1px solid #7f1d1d; border-radius: 6px; font-size: 13px; color: #fca5a5; cursor: pointer;">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warning -->
+        <div style="background: #1e293b; border: 1px solid #854d0e; border-radius: 8px; padding: 12px 16px; margin-top: 16px; display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 16px;">⚠️</span>
+          <span style="font-size: 13px; color: #fbbf24;">Admin mode: You are managing themes for another shop. The live theme cannot be deleted.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 32px;">
+  <h3>Updated: REST API (no exemption needed)</h3>
+  <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 20px; font-family: monospace; font-size: 13px; line-height: 1.8;">
+    <pre style="margin:0; white-space: pre; color: #e2e8f0;">
+API: Shopify REST Admin API (no exemption required)
+════════════════════════════════════════════════════
+
+GET  /admin/api/2025-04/themes.json
+     → List all themes (needs read_themes)
+
+GET  /admin/api/2025-04/themes/{id}/assets.json
+     → List all assets in a theme
+
+GET  /admin/api/2025-04/themes/{id}/assets.json?asset[key]=...
+     → Get single asset content (for download)
+
+DEL  /admin/api/2025-04/themes/{id}.json
+     → Delete a theme (needs write_themes)
+
+Scope: write_themes (includes read_themes)
+No Shopify exemption needed ✅
+    </pre>
+  </div>
+</div>

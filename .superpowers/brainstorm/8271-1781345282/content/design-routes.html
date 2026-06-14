@@ -1,0 +1,87 @@
+<h2>Design: Route Structure & Pages</h2>
+<p class="subtitle">Section 2 of 3 — What pages exist and what they do</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">Route Map</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 13px; line-height: 1.9; padding: 24px;">
+      <pre style="margin:0; white-space: pre;">
+MERCHANT ROUTES (Embedded in Shopify Admin)
+════════════════════════════════════════════
+/app                    → Layout shell (existing, Polaris)
+/app/_index             → Theme list page (replaces template demo)
+                          • Shows all themes for current shop
+                          • Role badge (Main, Unpublished, Demo)
+                          • [Download] button → triggers .zip download
+                          • [Delete] button → confirm dialog → delete
+                          • Cannot delete the live/main theme
+
+/app/themes/:id/download → Action route (no UI)
+                          • Fetches all theme files via GraphQL
+                          • Bundles into .zip with JSZip
+                          • Returns as file download response
+
+
+ADMIN ROUTES (Standalone, Tailwind CSS)
+════════════════════════════════════════════
+/admin                  → Layout shell with secret key validation
+                          Checks ?key= against ADMIN_SECRET_KEY env
+                          All child routes inherit auth
+
+/admin/_index           → Shop list dashboard
+                          • Lists all shops that installed the app
+                          • Shows shop name, domain, install date
+                          • Click shop → go to theme management
+
+/admin/shop/:shopId     → Theme management for a specific shop
+                          • Lists all themes for that shop
+                          • Role badge (Main, Unpublished, Demo)
+                          • [Download] button → triggers .zip download
+                          • [Delete] button → confirm → delete
+                          • Cannot delete the live/main theme
+
+/admin/shop/:shopId/    → Action route (no UI)
+  themes/:id/download     Same logic as merchant download
+
+
+SHARED
+════════════════════════════════════════════
+app/services/theme.server.js
+  • listThemes(admin)         → GraphQL themes query
+  • downloadTheme(admin, id)  → Fetch files + zip bundle
+  • deleteTheme(admin, id)    → themeDelete mutation
+  • getAdminForShop(shopId)   → Load session, create admin client
+      </pre>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>File Structure</h3>
+  <div class="mockup">
+    <div class="mockup-header">New & Modified Files</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 13px; line-height: 1.8; padding: 24px;">
+      <pre style="margin:0; white-space: pre;">
+app/
+├── services/
+│   └── theme.server.js          # Shared theme operations
+│
+├── routes/
+│   ├── app._index.jsx           # MODIFY: Theme list (merchant)
+│   ├── app.themes.$id.download.jsx  # NEW: Download action
+│   │
+│   ├── admin.jsx                # NEW: Admin layout + auth guard
+│   ├── admin._index.jsx         # NEW: Shop list dashboard
+│   ├── admin.shop.$shopId.jsx   # NEW: Theme list for shop
+│   └── admin.shop.$shopId.      # NEW: Download action (admin)
+│       themes.$id.download.jsx
+│
+├── styles/
+│   └── admin.css                # NEW: Tailwind compiled CSS
+
+shopify.app.toml                 # MODIFY: Add write_themes scope
+package.json                     # MODIFY: Add jszip, tailwindcss
+      </pre>
+    </div>
+  </div>
+</div>

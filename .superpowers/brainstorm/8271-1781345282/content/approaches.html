@@ -1,0 +1,80 @@
+<h2>Architecture Approaches</h2>
+<p class="subtitle">How should the merchant app and admin panel relate to each other?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Unified App — Shared Routes (Recommended)</h3>
+      <p>Both merchant and admin live in the same React Router app. Merchant pages under <code>/app/*</code> use Shopify auth + Polaris. Admin pages under <code>/admin/*</code> use secret key auth + Tailwind.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Single deploy on Vercel</li>
+            <li>Shared Prisma DB & Shopify API helpers</li>
+            <li>Admin can reuse merchant's session tokens to call Shopify APIs on their behalf</li>
+            <li>Simplest to build and maintain</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Tailwind CSS needs to coexist with Polaris (scoped to admin routes)</li>
+            <li>Admin and merchant share the same process</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Separate Admin Server</h3>
+      <p>Admin panel is a completely separate app (Express or standalone React Router) that connects to the same database. Deployed as a separate Vercel project.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Clean separation — no CSS conflicts</li>
+            <li>Can scale independently</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Two deploys, two repos or monorepo setup</li>
+            <li>Need to share DB connection and session storage</li>
+            <li>More infrastructure to manage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Admin as API-Only + Static Frontend</h3>
+      <p>Admin backend is API routes in the same app (<code>/api/admin/*</code>), but the admin frontend is a static HTML/Tailwind page served from <code>/public</code>. No React Router for admin UI.</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Zero CSS conflict — static HTML is fully isolated</li>
+            <li>Single deploy</li>
+            <li>Lightweight admin UI</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>No client-side routing for admin — page reloads on navigation</li>
+            <li>Harder to build rich interactive features</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

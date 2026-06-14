@@ -1,0 +1,77 @@
+<h2>Design: Architecture Overview</h2>
+<p class="subtitle">Section 1 of 3 — How the pieces fit together</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">System Architecture</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 13px; line-height: 1.8; padding: 24px;">
+      <pre style="margin:0; white-space: pre;">
+┌─────────────────────────────────────────────────────────┐
+│                    Vercel Deployment                     │
+│                                                         │
+│  ┌─────────────────────┐   ┌─────────────────────────┐  │
+│  │   MERCHANT SIDE     │   │     ADMIN SIDE           │  │
+│  │   (Embedded App)    │   │   (Standalone Pages)     │  │
+│  │                     │   │                          │  │
+│  │  /app/*             │   │  /admin?key=SECRET       │  │
+│  │  Auth: Shopify OAuth│   │  Auth: ENV secret key    │  │
+│  │  UI: Polaris Web    │   │  UI: Tailwind CSS        │  │
+│  │  Components         │   │                          │  │
+│  │                     │   │  /admin/shop/:id/themes  │  │
+│  │  Features:          │   │                          │  │
+│  │  • List themes      │   │  Features:               │  │
+│  │  • Download (.zip)  │   │  • List all shops        │  │
+│  │  • Delete theme     │   │  • View shop's themes    │  │
+│  │                     │   │  • Download any theme    │  │
+│  └────────┬────────────┘   │  • Delete any theme      │  │
+│           │                └──────────┬───────────────┘  │
+│           │                           │                  │
+│           ▼                           ▼                  │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │              Shared Service Layer                   │ │
+│  │                                                     │ │
+│  │  • theme.server.js — list, download, delete logic   │ │
+│  │  • Shopify GraphQL Admin API (write_themes scope)   │ │
+│  │  • JSZip for bundling theme files into .zip         │ │
+│  └─────────────────────┬───────────────────────────────┘ │
+│                        │                                 │
+│                        ▼                                 │
+│  ┌─────────────────────────────────────────────────────┐ │
+│  │           Prisma / SQLite Database                  │ │
+│  │                                                     │ │
+│  │  Session table (existing) — stores shop tokens      │ │
+│  │  Admin uses stored sessions to act on any shop      │ │
+│  └─────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+
+API: Shopify GraphQL Admin API
+├── themes(roles: []) → list all themes
+├── theme(id:).files(filenames:) → get file contents
+├── themeDelete(id:) → delete a theme
+└── Scope needed: write_themes
+      </pre>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Key Design Decisions</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div class="label">API Choice</div>
+      <p>GraphQL Admin API (required for new apps since April 2025). Queries: <code>themes</code>, <code>theme.files</code>. Mutations: <code>themeDelete</code>.</p>
+    </div>
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div class="label">Download Strategy</div>
+      <p>Fetch all theme files via <code>theme.files</code>, bundle into a <code>.zip</code> on the server using JSZip, stream to browser.</p>
+    </div>
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div class="label">Admin Auth</div>
+      <p>Secret key from <code>ADMIN_SECRET_KEY</code> env var, passed as <code>?key=</code> query param. Validated in a middleware loader.</p>
+    </div>
+    <div style="background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div class="label">Cross-Shop Access</div>
+      <p>Admin reads all offline sessions from Prisma DB. Uses each shop's stored access token to make API calls on their behalf.</p>
+    </div>
+  </div>
+</div>
