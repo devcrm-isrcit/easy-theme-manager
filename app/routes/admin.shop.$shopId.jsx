@@ -121,11 +121,13 @@ export default function AdminShopThemes() {
       [themeId]: { active: true, percent: 0, status: "Connecting...", logs: [] },
     }));
 
-    const zipChunks = [];
-
     try {
-      const url = `/admin/shop/${encodeURIComponent(shopDomain)}/themes/${themeId}/download-stream?key=${key}`;
-      const response = await fetch(url);
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+      let fileCount = 0;
+
+      const streamUrl = `/admin/shop/${encodeURIComponent(shopDomain)}/themes/${themeId}/download-stream?key=${key}`;
+      const response = await fetch(streamUrl);
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -152,6 +154,13 @@ export default function AdminShopThemes() {
                 logs: [...(s[themeId]?.logs || []), { type: "status", text: data.message }],
               },
             }));
+          } else if (data.type === "file") {
+            if (data.attachment != null) {
+              zip.file(data.key, data.attachment, { base64: true });
+            } else if (data.value != null) {
+              zip.file(data.key, data.value);
+            }
+            fileCount++;
           } else if (data.type === "status") {
             setDownloadState((s) => ({
               ...s,
@@ -162,13 +171,14 @@ export default function AdminShopThemes() {
               },
             }));
           } else if (data.type === "progress") {
+            const total = data.total || 1;
             setDownloadState((s) => ({
               ...s,
               [themeId]: {
                 ...s[themeId],
-                percent: Math.round((data.fetched / Math.max(data.total, 1)) * 80),
+                percent: Math.round((data.fetched / total) * 85),
                 fetched: data.fetched,
-                status: `${data.fetched} files — ${data.file}`,
+                status: `${data.fetched}/${total} — ${data.file}`,
                 logs: [...(s[themeId]?.logs || []), { type: "file", text: data.file }],
               },
             }));
@@ -180,30 +190,19 @@ export default function AdminShopThemes() {
                 logs: [...(s[themeId]?.logs || []), { type: "skip", text: `${data.file} — ${data.error}` }],
               },
             }));
-          } else if (data.type === "chunk") {
-            zipChunks.push(data.data);
-            const chunkPercent = 80 + Math.round((data.index / Math.max(data.total, 1)) * 18);
+          } else if (data.type === "done") {
             setDownloadState((s) => ({
               ...s,
-              [themeId]: {
-                ...s[themeId],
-                percent: chunkPercent,
-                status: `Receiving zip ${data.index + 1}/${data.total}...`,
-              },
+              [themeId]: { ...s[themeId], percent: 90, status: "Generating zip in browser..." },
             }));
-          } else if (data.type === "done") {
+
+            const blob = await zip.generateAsync({ type: "blob" });
+
             setDownloadState((s) => ({
               ...s,
               [themeId]: { ...s[themeId], percent: 100, status: "Saving file..." },
             }));
 
-            const fullBase64 = zipChunks.join("");
-            const byteChars = atob(fullBase64);
-            const byteArray = new Uint8Array(byteChars.length);
-            for (let i = 0; i < byteChars.length; i++) {
-              byteArray[i] = byteChars.charCodeAt(i);
-            }
-            const blob = new Blob([byteArray], { type: "application/zip" });
             const blobUrl = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = blobUrl;

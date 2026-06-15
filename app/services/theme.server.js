@@ -185,6 +185,64 @@ export async function* iterateThemeFiles(shopDomain, accessToken, themeId) {
   } while (after);
 }
 
+const THEME_FILENAMES_QUERY = `#graphql
+  query ThemeFileNames($id: ID!, $first: Int!, $after: String) {
+    theme(id: $id) {
+      files(first: $first, after: $after) {
+        nodes {
+          filename
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }
+`;
+
+export async function getThemeFileNames(shopDomain, accessToken, themeId) {
+  const filenames = [];
+  let after = null;
+
+  do {
+    const data = await shopifyGraphql(shopDomain, accessToken, THEME_FILENAMES_QUERY, {
+      id: toThemeGid(themeId),
+      first: 250,
+      after,
+    });
+
+    const theme = data.theme;
+    if (!theme) throw new Error(`Theme not found: ${themeId}`);
+
+    for (const node of theme.files.nodes || []) {
+      filenames.push(node.filename);
+    }
+
+    after = theme.files.pageInfo.hasNextPage ? theme.files.pageInfo.endCursor : null;
+  } while (after);
+
+  return filenames;
+}
+
+export async function getThemeFileContent(shopDomain, accessToken, themeId, key) {
+  const url = shopifyRestUrl(shopDomain, `/themes/${themeId}/assets.json?asset[key]=${encodeURIComponent(key)}`);
+  const response = await fetch(url, {
+    headers: {
+      "X-Shopify-Access-Token": accessToken,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Failed to fetch ${key}: ${response.status} ${text}`);
+  }
+
+  const data = await response.json();
+  return data.asset;
+}
+
 export async function downloadThemeAsZip(
   shopDomain,
   accessToken,
