@@ -1,7 +1,6 @@
 import { Outlet, useLoaderData } from "react-router";
-import { useRef } from "react";
 
-export const loader = async ({ request }) => {  
+export const loader = async ({ request }) => {
   const url = new URL(request.url);
   const key = url.searchParams.get("key");
   const secret = process.env.ADMIN_SECRET_KEY;
@@ -15,33 +14,24 @@ export const loader = async ({ request }) => {
 
 export default function AdminLayout() {
   const { key } = useLoaderData();
-  const scriptLoaded = useRef(false);
-
-  if (typeof document !== "undefined" && !scriptLoaded.current) {
-    scriptLoaded.current = true;
-    if (!document.querySelector('script[src="https://cdn.tailwindcss.com"]')) {
-      const configScript = document.createElement("script");
-      configScript.textContent = `window.tailwind = window.tailwind || {}; tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              slate: {
-                850: '#172033',
-              }
-            }
-          }
-        }
-      }`;
-      document.head.appendChild(configScript);
-
-      const twScript = document.createElement("script");
-      twScript.src = "https://cdn.tailwindcss.com";
-      document.head.appendChild(twScript);
-    }
-  }
 
   return (
     <>
+      <script
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: `window.tailwind = window.tailwind || {}; tailwind.config = {
+            theme: {
+              extend: {
+                colors: {
+                  slate: { 850: '#172033' }
+                }
+              }
+            }
+          }`,
+        }}
+      />
+      <script suppressHydrationWarning src="https://cdn.tailwindcss.com" />
       <style
         dangerouslySetInnerHTML={{
           __html: `

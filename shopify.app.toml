@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "c0503c65bac7294f8a4bee39b93f92be"
-application_url = "https://example.com"
+application_url = "https://easy-theme-manager.onrender.com"
 embedded = true
 name = "theme-operator"
 
@@ -45,8 +45,7 @@ api_version = "2026-07"
   topics = [ "app/scopes_update" ]
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://easy-theme-manager.onrender.com/api/auth" ]
 
 [build]
-include_config_on_deploy = true
 automatically_update_urls_on_dev = true
