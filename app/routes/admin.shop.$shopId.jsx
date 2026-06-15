@@ -121,6 +121,8 @@ export default function AdminShopThemes() {
       [themeId]: { active: true, percent: 0, status: "Connecting...", logs: [] },
     }));
 
+    const zipChunks = [];
+
     try {
       const url = `/admin/shop/${encodeURIComponent(shopDomain)}/themes/${themeId}/download-stream?key=${key}`;
       const response = await fetch(url);
@@ -160,14 +162,13 @@ export default function AdminShopThemes() {
               },
             }));
           } else if (data.type === "progress") {
-            const percent = Math.round((data.fetched / data.total) * 100);
             setDownloadState((s) => ({
               ...s,
               [themeId]: {
                 ...s[themeId],
-                percent,
+                percent: Math.round((data.fetched / Math.max(data.total, 1)) * 80),
                 fetched: data.fetched,
-                status: `${data.fetched}/${data.total} — ${data.file}`,
+                status: `${data.fetched} files — ${data.file}`,
                 logs: [...(s[themeId]?.logs || []), { type: "file", text: data.file }],
               },
             }));
@@ -179,13 +180,25 @@ export default function AdminShopThemes() {
                 logs: [...(s[themeId]?.logs || []), { type: "skip", text: `${data.file} — ${data.error}` }],
               },
             }));
+          } else if (data.type === "chunk") {
+            zipChunks.push(data.data);
+            const chunkPercent = 80 + Math.round((data.index / Math.max(data.total, 1)) * 18);
+            setDownloadState((s) => ({
+              ...s,
+              [themeId]: {
+                ...s[themeId],
+                percent: chunkPercent,
+                status: `Receiving zip ${data.index + 1}/${data.total}...`,
+              },
+            }));
           } else if (data.type === "done") {
             setDownloadState((s) => ({
               ...s,
               [themeId]: { ...s[themeId], percent: 100, status: "Saving file..." },
             }));
 
-            const byteChars = atob(data.zipBase64);
+            const fullBase64 = zipChunks.join("");
+            const byteChars = atob(fullBase64);
             const byteArray = new Uint8Array(byteChars.length);
             for (let i = 0; i < byteChars.length; i++) {
               byteArray[i] = byteChars.charCodeAt(i);

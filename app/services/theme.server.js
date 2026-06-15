@@ -93,72 +93,96 @@ export async function getThemeAsset(shopDomain, accessToken, themeId, key) {
   return file;
 }
 
-export async function getThemeFiles(shopDomain, accessToken, themeId) {
-  const query = `#graphql
-    query ThemeFiles($id: ID!, $first: Int!, $after: String) {
-      theme(id: $id) {
-        files(first: $first, after: $after) {
-          nodes {
-            filename
-            body {
-              ... on OnlineStoreThemeFileBodyText {
-                content
-              }
-              ... on OnlineStoreThemeFileBodyBase64 {
-                contentBase64
-              }
+const THEME_FILES_QUERY = `#graphql
+  query ThemeFiles($id: ID!, $first: Int!, $after: String) {
+    theme(id: $id) {
+      files(first: $first, after: $after) {
+        nodes {
+          filename
+          body {
+            ... on OnlineStoreThemeFileBodyText {
+              content
+            }
+            ... on OnlineStoreThemeFileBodyBase64 {
+              contentBase64
             }
           }
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-          userErrors {
-            filename
-            code
-          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        userErrors {
+          filename
+          code
         }
       }
     }
-  `;
+  }
+`;
 
+function parseThemeFilesPage(data, themeId) {
+  const theme = data.theme;
+  if (!theme) {
+    throw new Error(`Theme not found: ${themeId}`);
+  }
+
+  const userErrors = theme.files?.userErrors || [];
+  if (userErrors.length) {
+    const message = userErrors
+      .map((error) => [error.filename, error.code].filter(Boolean).join(": "))
+      .join("; ");
+    throw new Error(`Failed to fetch theme files: ${message}`);
+  }
+
+  const files = [];
+  for (const node of theme.files.nodes || []) {
+    const file = { key: node.filename };
+    if (node.body?.contentBase64 != null) {
+      file.attachment = node.body.contentBase64;
+    } else if (node.body?.content != null) {
+      file.value = node.body.content;
+    }
+    files.push(file);
+  }
+
+  const cursor = theme.files.pageInfo.hasNextPage ? theme.files.pageInfo.endCursor : null;
+  return { files, cursor };
+}
+
+export async function getThemeFiles(shopDomain, accessToken, themeId) {
   const files = [];
   let after = null;
 
   do {
-    const data = await shopifyGraphql(shopDomain, accessToken, query, {
+    const data = await shopifyGraphql(shopDomain, accessToken, THEME_FILES_QUERY, {
       id: toThemeGid(themeId),
       first: 250,
       after,
     });
-
-    const theme = data.theme;
-    if (!theme) {
-      throw new Error(`Theme not found: ${themeId}`);
-    }
-
-    const userErrors = theme.files?.userErrors || [];
-    if (userErrors.length) {
-      const message = userErrors
-        .map((error) => [error.filename, error.code].filter(Boolean).join(": "))
-        .join("; ");
-      throw new Error(`Failed to fetch theme files: ${message}`);
-    }
-
-    for (const node of theme.files.nodes || []) {
-      const file = { key: node.filename };
-      if (node.body?.contentBase64 != null) {
-        file.attachment = node.body.contentBase64;
-      } else if (node.body?.content != null) {
-        file.value = node.body.content;
-      }
-      files.push(file);
-    }
-
-    after = theme.files.pageInfo.hasNextPage ? theme.files.pageInfo.endCursor : null;
+    const page = parseThemeFilesPage(data, themeId);
+    files.push(...page.files);
+    after = page.cursor;
   } while (after);
 
   return files;
+}
+
+export async function* iterateThemeFiles(shopDomain, accessToken, themeId) {
+  let after = null;
+
+  do {
+    const data = await shopifyGraphql(shopDomain, accessToken, THEME_FILES_QUERY, {
+      id: toThemeGid(themeId),
+      first: 125,
+      after,
+    });
+    const page = parseThemeFilesPage(data, themeId);
+    for (const file of page.files) {
+      yield file;
+    }
+    after = page.cursor;
+  } while (after);
 }
 
 export async function downloadThemeAsZip(
