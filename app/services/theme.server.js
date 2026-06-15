@@ -225,22 +225,31 @@ export async function getThemeFileNames(shopDomain, accessToken, themeId) {
   return filenames;
 }
 
-export async function getThemeFileContent(shopDomain, accessToken, themeId, key) {
+export async function getThemeFileContent(shopDomain, accessToken, themeId, key, retries = 4) {
   const url = shopifyRestUrl(shopDomain, `/themes/${themeId}/assets.json?asset[key]=${encodeURIComponent(key)}`);
-  const response = await fetch(url, {
-    headers: {
-      "X-Shopify-Access-Token": accessToken,
-      "Content-Type": "application/json",
-    },
-  });
 
-  if (!response.ok) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const response = await fetch(url, {
+      headers: {
+        "X-Shopify-Access-Token": accessToken,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.asset;
+    }
+
+    if (response.status === 429 && attempt < retries) {
+      const retryAfter = parseFloat(response.headers.get("Retry-After")) || 2;
+      await new Promise((r) => setTimeout(r, retryAfter * 1000 * (attempt + 1)));
+      continue;
+    }
+
     const text = await response.text();
     throw new Error(`Failed to fetch ${key}: ${response.status} ${text}`);
   }
-
-  const data = await response.json();
-  return data.asset;
 }
 
 export async function downloadThemeAsZip(

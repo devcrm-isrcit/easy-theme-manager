@@ -40,9 +40,11 @@ export const loader = async ({ request, params }) => {
 
         let fetched = 0;
         let skipped = 0;
+        const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
         for (const filename of filenames) {
           try {
+            await delay(550);
             const asset = await getThemeFileContent(shopDomain, accessToken, themeId, filename);
 
             if (asset.attachment != null) {
