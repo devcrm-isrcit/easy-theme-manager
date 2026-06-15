@@ -13,8 +13,9 @@ export const loader = async ({ request }) => {
       const { accessToken } = await getSessionForShop(domain);
       const themes = await listThemes(domain, accessToken);
       shops.push({ domain, themeCount: themes.length });
-    } catch {
-      shops.push({ domain, themeCount: 0, error: true });
+    } catch (err) {
+      console.error(`[ADMIN] Failed to load themes for ${domain}:`, err.message);
+      shops.push({ domain, themeCount: 0, error: err.message });
     }
   }
 
@@ -50,7 +51,7 @@ export default function AdminIndex() {
               <div className="font-medium text-slate-100">{shop.domain}</div>
               <div className="text-slate-400">
                 {shop.error ? (
-                  <span className="text-red-400">Error</span>
+                  <span className="text-red-400" title={shop.error}>Error</span>
                 ) : (
                   `${shop.themeCount} themes`
                 )}
